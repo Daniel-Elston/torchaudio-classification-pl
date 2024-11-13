@@ -4,6 +4,7 @@ from config.state_init import StateManager
 from utils.execution import TaskExecutor
 from src.data.download_dataset import DownloadDataset
 from src.data.process_store import ProcessStoreData
+from src.data.load_dataset import LoadDataset
 
 
 class DataPipeline:
@@ -14,7 +15,8 @@ class DataPipeline:
     def main(self):
         steps = [
             # DownloadDataset(self.state),
-            ProcessStoreData(self.state, self.exe),
+            # ProcessStoreData(self.state, self.exe),
+            LoadDataset(label="no", batch_size=64),
         ]
         self.exe._execute_steps(steps, stage="parent")
 

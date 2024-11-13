@@ -6,6 +6,7 @@ from pathlib import Path
 import logging
 from config.state_init import StateManager
 from utils.execution import TaskExecutor
+
 import h5py
 import torchaudio as ta
 import torch
@@ -29,12 +30,14 @@ class ProcessStoreData:
                     self.process_and_save_label(label, h5f)
         self.view_hdf5('audio_data.hdf5')
 
+
     def process_and_save_label(self, label, h5f):
         """Process a single label and save its data to the HDF5 file"""
         label_group = h5f.create_group(label)
         files = sorted(Path(self.load_path, label).glob('*.wav'))
         for file_path in files:
             waveform, sample_rate = ta.load(str(file_path))
+            waveform, sample_rate = waveform.to(torch.float32), int(sample_rate/10)
             speaker_id = file_path.stem.split('_')[0]
             utterance_number = int(file_path.stem.split('_')[-1])
             
