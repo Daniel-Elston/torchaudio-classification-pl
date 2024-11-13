@@ -38,7 +38,7 @@ class HDF5AudioDataset(Dataset):
             speaker_id = data.attrs['speaker_id']
             utterance_number = data.attrs['utterance_number']
             
-            # if not size 16000: remove from the dataset
+            # if not size 16000, remove from the dataset
             if waveform.size()[1] != 16000:
                 del self.dataset_index[idx]
                 return self.__getitem__(idx)
