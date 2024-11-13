@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 paths_store = {
-    "raw": Path("data/raw/"),
+    "raw": Path("data/raw/SpeechCommands/speech_commands_v0.02"),
+    "processed": Path("data/processed/tst.json"),
 }
 
 
