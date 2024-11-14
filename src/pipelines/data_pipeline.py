@@ -8,6 +8,7 @@ from src.data.load_dataset import LoadDataset
 from src.plots.visuals import Visualiser
 from pprint import pprint
 from typing import List, Optional, Any, Dict
+from src.data.create_imgs import CreateImages
 
 
 class DataPipeline:
@@ -19,8 +20,10 @@ class DataPipeline:
         steps = [
             # DownloadDataset(self.state),
             # ProcessStoreData(self.state, self.exe),
-            LoadDataset(self.state, label="no", batch_size=64),
-            Visualiser(self.state),
+            # LoadDataset(self.state, label="no", batch_size=64),
+            LoadDataset(self.state, batch_size=1),
+            # Visualiser(self.state),
+            CreateImages(self.state),
         ]
         self.exe._execute_steps(steps, stage="parent")
 

@@ -16,7 +16,7 @@ class LoadDataset:
         self.label = label
         self.batch_size = batch_size
         self.view = view
-        self.hdf5_filename = 'audio_data.hdf5'
+        self.hdf5_filename = 'data/audio_data.hdf5'
         self.dataloader = None
 
     def run(self):
@@ -45,8 +45,4 @@ class LoadDataset:
                 break
 
     def __call__(self):
-        # if self.dataloader is None:
-        #     self.data_state.set('dataloader', self.dataloader)
-        # else:
-        #     logging.error("Dataloader creation failed in LoadDataset")
         return self.run()

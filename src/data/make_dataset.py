@@ -12,36 +12,34 @@ class HDF5AudioDataset(Dataset):
     def __init__(self, hdf5_filename):
         self.hdf5_filename = hdf5_filename
         self.labels = None
-        self.dataset_index = None
+        self.dataset_index = []
         self._init_index()
 
     def _init_index(self):
-        """Open the file temporarily to read the index"""
+        """Open the file temporarily to read the index and filter entries"""
         with h5py.File(self.hdf5_filename, 'r') as h5f:
             self.labels = list(h5f.keys())
-            self.dataset_index = [
-                (label, key)
-                for label in self.labels
-                for key in h5f[label].keys()
-            ]
+            for label in self.labels:
+                for key in h5f[label].keys():
+                    data = h5f[label][key]
+                    waveform = torch.from_numpy(data[()])
+                    
+                    # Filter out entries with waveform size not equal to 16000
+                    if waveform.size(-1) == 16000:  # Check if the last dimension matches
+                        self.dataset_index.append((label, key))
 
     def __len__(self):
         return len(self.dataset_index)
 
     def __getitem__(self, idx):
-        """Open the HDF5 file for each access"""
+        """Open the HDF5 file for each access without modifying the index"""
+        label, key = self.dataset_index[idx]
         with h5py.File(self.hdf5_filename, 'r') as h5f:
-            label, key = self.dataset_index[idx]
             data = h5f[label][key]
             waveform = torch.from_numpy(data[()])
             sample_rate = data.attrs['sample_rate']
             speaker_id = data.attrs['speaker_id']
             utterance_number = data.attrs['utterance_number']
-            
-            # if not size 16000, remove from the dataset
-            if waveform.size()[1] != 16000:
-                del self.dataset_index[idx]
-                return self.__getitem__(idx)
 
         return {
             'label': label,

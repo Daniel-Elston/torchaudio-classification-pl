@@ -78,7 +78,23 @@ class Visualiser:
         plt.imshow(mel_spectrogram.log2().squeeze().numpy(), cmap='viridis')
         plt.show()
         
+    def vis_mel_freq_cepstral_coeff(self):
+        self.dataloader = self.data_state.get('dataloader')
+        batch = next(iter(self.dataloader))
+        
+        waveform = batch['waveform'][0]
+        sample_rate = batch['sample_rate'][0].item()
+        
+        mfcc_spectrogram = ta.transforms.MFCC(sample_rate= sample_rate)(waveform)
+
+        plt.figure()
+        plt.title(
+            f"Mel Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
+        plt.imshow(mfcc_spectrogram.log2().squeeze().numpy(), cmap='viridis')
+        plt.show()
+        
     def __call__(self):
         self.vis_waveform()
         self.vis_spectogram()
         self.vis_melspectrogram()
+        self.vis_mel_freq_cepstral_coeff()

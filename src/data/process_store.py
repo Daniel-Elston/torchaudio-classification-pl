@@ -21,14 +21,14 @@ class ProcessStoreData:
         self.labels = state.data_config.labels
 
     def pipeline(self):
-        with h5py.File('audio_data.hdf5', 'w') as h5f:
+        with h5py.File('data/audio_data.hdf5', 'w') as h5f:
             for label in self.labels:
                 if label == '_background_noise_':
                     pass
                 else:
                     logging.debug(f"Processing label: {label}")
                     self.process_and_save_label(label, h5f)
-        self.view_hdf5('audio_data.hdf5')
+        self.view_hdf5('data/audio_data.hdf5')
 
 
     def process_and_save_label(self, label, h5f):
@@ -37,7 +37,7 @@ class ProcessStoreData:
         files = sorted(Path(self.load_path, label).glob('*.wav'))
         for file_path in files:
             waveform, sample_rate = ta.load(str(file_path))
-            waveform, sample_rate = waveform.to(torch.float32), int(sample_rate/10,)
+            waveform, sample_rate = waveform.to(torch.float32), int(sample_rate/10)
             speaker_id = file_path.stem.split('_')[0]
             utterance_number = int(file_path.stem.split('_')[-1])
             
