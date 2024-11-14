@@ -18,7 +18,7 @@ class ProcessStoreData:
         self.state = state
         self.exe = exe
         self.load_path = state.paths.get_path('raw')
-        self.labels = sorted([p.name for p in Path(self.load_path).iterdir() if p.is_dir()])
+        self.labels = state.data_config.labels
 
     def pipeline(self):
         with h5py.File('audio_data.hdf5', 'w') as h5f:
@@ -37,7 +37,7 @@ class ProcessStoreData:
         files = sorted(Path(self.load_path, label).glob('*.wav'))
         for file_path in files:
             waveform, sample_rate = ta.load(str(file_path))
-            waveform, sample_rate = waveform.to(torch.float32), int(sample_rate/10)
+            waveform, sample_rate = waveform.to(torch.float32), int(sample_rate/10,)
             speaker_id = file_path.stem.split('_')[0]
             utterance_number = int(file_path.stem.split('_')[-1])
             
