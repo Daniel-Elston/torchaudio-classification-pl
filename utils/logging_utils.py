@@ -14,7 +14,6 @@ def log_cls_methods(cls):
             setattr(cls, name, log_step(view=True)(method))
     return cls
 
-
 def log_step(
     load_path: Optional[Union[str, Path]] = None,
     save_paths: Optional[Union[str, Path, List[Union[str, Path]]]] = None,
@@ -25,25 +24,27 @@ def log_step(
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            # Check if func has __qualname__; if not, use alternative naming
+            # Extract function location info
             if hasattr(func, "__qualname__"):
                 script_name = func.__module__.split(".")[-1]
                 class_name = func.__qualname__.split(".")[0]
                 func_name = func.__name__
-                result = func(*args, **kwargs)
-
             else:
                 # Fallback for callable instances
                 script_name = func.__module__.split(".")[-1]
                 class_name = type(func).__name__
                 func_name = "__call__"
-                result = ()
 
             locate = f"`{script_name}.{class_name}.{func_name}`"
-            logging.info(f"STARTING {locate} INITIATING")
+            if "Pipeline" in locate:
+                logging.info(f"STARTING {locate} INITIATING\n")
+            else:
+                logging.info(f"STARTING {locate} INITIATING")
             start_time = time.time()
 
             try:
+                result = func(*args, **kwargs)
+
                 log_details = {
                     "Load path": load_path if load_path or view or input else None,
                     "Save paths": save_paths if save_paths or view or output else None,
