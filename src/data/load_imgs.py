@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import logging
-from pprint import pprint, pformat
+from pprint import pformat
 
 from torch.utils.data import DataLoader
 from config.state_init import StateManager
-from torchvision import datasets, models, transforms
+from torchvision import datasets, transforms
 import torch
 from collections import Counter
 

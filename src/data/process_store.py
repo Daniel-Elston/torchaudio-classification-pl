@@ -1,24 +1,22 @@
 from __future__ import annotations
 
-import pandas as pd
-import os
 from pathlib import Path
 import logging
 from config.state_init import StateManager
 from utils.execution import TaskExecutor
+from config.data import DataConfig
 
 import h5py
 import torchaudio as ta
 import torch
-from pprint import pprint
 
 
 class ProcessStoreData:
-    def __init__(self, state: StateManager, exe: TaskExecutor):
+    def __init__(self, state: StateManager, exe: TaskExecutor, config: DataConfig):
         self.state = state
         self.exe = exe
+        self.labels = config.labels
         self.load_path = state.paths.get_path('raw')
-        self.labels = state.data_config.labels
 
     def pipeline(self):
         with h5py.File('data/audio_data.hdf5', 'w') as h5f:

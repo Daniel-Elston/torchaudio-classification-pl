@@ -19,7 +19,6 @@ def db_creds():
     db_conf = {
         "database": os.getenv("POSTGRES_DB"),
         "schema": os.getenv("POSTGRES_SCHEMA"),
-        # "table": os.getenv("POSTGRES_TABLE"),
     }
     return admin_conf, db_conf
 
@@ -32,7 +31,6 @@ class DatabaseConfig(ApiConfig):
 
     database: str = field(init=False)
     schema: str = field(init=False)
-    # table: str = field(init=False)
     table: str = field(init=False)
 
     overwrite: bool = False
@@ -44,21 +42,10 @@ class DatabaseConfig(ApiConfig):
         self.admin_creds, self.db_info = db_creds()
         self.database = self.db_info["database"]
         self.schema = self.db_info["schema"]
-        # self.table = self.db_info["table"]
-        self.table = self.create_table_config()
+        self.table = 'postgres'
 
         logging.debug(f"Initialised DatabaseConfig:\n{pformat(self.__dict__)}\n")
 
-    def create_table_config(self):
-        """Dynamically create table name based on stage"""
-        if self.stage == "load1":
-            table_name = f"{self.symbol}_{self.mode}_transform"
-            return table_name.lower()
-        elif self.stage == "load2":
-            table_name = f"{self.symbol}_{self.mode}_fetch"
-            return table_name.lower()
-        else:
-            raise ValueError(f"Invalid stage: {self.stage}. Expected 'load1' or 'load2'.")
 
 
 @dataclass

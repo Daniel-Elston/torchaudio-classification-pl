@@ -48,6 +48,7 @@ class Visualiser:
 
         plt.tight_layout()
         plt.show()
+        plt.close()
     
     def vis_spectogram(self):
         self.dataloader = self.data_state.get('dataloader')
@@ -62,6 +63,7 @@ class Visualiser:
             f"Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(spectrogram.log2().squeeze().numpy(), cmap='viridis')
         plt.show()
+        plt.close()
 
     def vis_melspectrogram(self):
         self.dataloader = self.data_state.get('dataloader')
@@ -77,6 +79,7 @@ class Visualiser:
             f"Mel Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(mel_spectrogram.log2().squeeze().numpy(), cmap='viridis')
         plt.show()
+        plt.close()
         
     def vis_mel_freq_cepstral_coeff(self):
         self.dataloader = self.data_state.get('dataloader')
@@ -92,6 +95,7 @@ class Visualiser:
             f"Mel Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(mfcc_spectrogram.log2().squeeze().numpy(), cmap='viridis')
         plt.show()
+        plt.close()
         
     def __call__(self):
         return self.pipeline()
