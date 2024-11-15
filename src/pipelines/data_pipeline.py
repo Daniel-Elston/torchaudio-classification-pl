@@ -10,7 +10,6 @@ from pprint import pprint
 from typing import List, Optional, Any, Dict
 from src.data.create_imgs import CreateImages
 
-
 class DataPipeline:
     def __init__(self, state: StateManager, exe: TaskExecutor):
         self.state = state

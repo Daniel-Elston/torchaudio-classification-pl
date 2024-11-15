@@ -5,17 +5,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from config.state_init import StateManager
 
-from typing import List, Optional, Any, Dict
-from src.data.load_dataset import LoadDataset
-from config.data import DataState
-import logging
-from pprint import pprint
-
 
 class Visualiser:
     """Load dataset and perform base processing"""
     def __init__(self, state: StateManager):
         self.data_state = state.data_state
+        
+    def pipeline(self):
+        self.vis_waveform()
+        self.vis_spectogram()
+        self.vis_melspectrogram()
+        self.vis_mel_freq_cepstral_coeff()
 
     def vis_waveform(self):
         self.dataloader = self.data_state.get('dataloader')
@@ -94,7 +94,4 @@ class Visualiser:
         plt.show()
         
     def __call__(self):
-        self.vis_waveform()
-        self.vis_spectogram()
-        self.vis_melspectrogram()
-        self.vis_mel_freq_cepstral_coeff()
+        return self.pipeline()
