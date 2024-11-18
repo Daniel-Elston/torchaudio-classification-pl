@@ -23,7 +23,7 @@ class DataPipeline:
             LoadDataset(self.state, batch_size=1),
             Visualiser(self.state),
             CreateImages(self.state),
-            LoadImages(self.state, img_type='spectograms', batch_size=16),
+            LoadImages(self.state, self.config, img_type='spectograms', batch_size=16),
         ]
         self.exe._execute_steps(steps, stage="parent")
 

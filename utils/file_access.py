@@ -2,24 +2,14 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from contextlib import contextmanager
 from pathlib import Path
 
-import aiofiles
 import pandas as pd
 
-
-async def temp_file_reset(filepath):
-    """Reset a temp file."""
-    if os.path.exists(filepath):
-        os.remove(filepath)
-
-
-async def save_json(data, filepath):
-    """Save data to a json file."""
-    async with aiofiles.open(filepath, "w") as file:
-        await file.write(json.dumps(data))
+def load_json(path):
+    with open(path, "r") as file:
+        return json.load(file)
 
 
 class FileAccess:

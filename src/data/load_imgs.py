@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from pprint import pformat
 
@@ -8,14 +9,17 @@ from config.state_init import StateManager
 from torchvision import datasets, transforms
 import torch
 from collections import Counter
-
+from config.data import DataConfig
+from utils.file_access import FileAccess
 
 class LoadImages:
-    def __init__(self, state: StateManager, img_type='spectograms', batch_size=64, view=None):
+    def __init__(self, state: StateManager, config: DataConfig, img_type='spectograms', batch_size=64, view=None):
+        self.config = config
         self.data_state = state.data_state
         self.batch_size = batch_size
         self.img_type = img_type
-        self.load_path = f'data/processed/{self.img_type}'
+        self.load_path = f'{state.paths.get_path("processed")}/{self.img_type}'
+        self.save_path = state.paths.get_path('mappings')
         self.train_dataloader = None
         self.test_dataloader = None
         self.view = view
@@ -50,10 +54,15 @@ class LoadImages:
             ])
         )
         class_to_idx = dataset.class_to_idx
+        FileAccess.save_json(class_to_idx, self.save_path)
         logging.debug(f"Dataset created: {dataset}")
         logging.debug(f"Dataset mapping: {pformat(class_to_idx)}")
         
-        train_size = int(0.8 * len(dataset))
+        if self.config.subset:
+            subset_indices = range(int(len(dataset) * 0.5)) ############## TESTING #############
+            dataset = torch.utils.data.Subset(dataset, subset_indices) ############## TESTING #############
+        
+        train_size = int(self.config.train_size * len(dataset))
         test_size = len(dataset) - train_size
         train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
         logging.debug(f"Dataset of {len(dataset)} split into {train_size} and {test_size}")
