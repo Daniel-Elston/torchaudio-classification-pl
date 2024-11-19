@@ -1,4 +1,4 @@
-audio_data.hdf5
+tb_logs/
 commit-msg.txt
 notebooks/*
 data/*

@@ -4,6 +4,7 @@ import logging
 import logging.config
 from functools import partial
 from pathlib import Path
+import multiprocessing
 
 import colorlog
 
@@ -109,6 +110,19 @@ def setup_logging(name, project_dir, log_file_name, config):
             "handlers": ["console", "file"],
         },
     }
+
+    if multiprocessing.current_process().name == "MainProcess":
+        LOGGING_CONFIG["handlers"]["file"] = {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": file_level,
+            "formatter": "detailed",
+            "filename": str(log_file_path),
+            "maxBytes": 1000000,
+            "backupCount": 5,
+        }
+        LOGGING_CONFIG["root"]["handlers"].append("file")
+        for logger_name in LOGGING_CONFIG["loggers"]:
+            LOGGING_CONFIG["loggers"][logger_name]["handlers"].append("file")
 
     if name == "MAIN":
         LOGGING_CONFIG["root"]["level"] = "DEBUG"

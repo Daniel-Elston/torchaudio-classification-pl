@@ -4,8 +4,8 @@
 
 # LOGGING
 logging:
-  root_level: DEBUG
-  file_level: DEBUG
+  root_level: INFO
+  file_level: INFO
   console_level: INFO
 
 ##########################################################################################

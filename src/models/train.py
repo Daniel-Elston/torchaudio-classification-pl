@@ -1,62 +1,77 @@
 from __future__ import annotations
 
-import logging
-from config.model import ModelConfig
+import json
 from config.state_init import StateManager
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from src.models.cnn import CNN
-from src.base.base_val import BaseValidator
+from src.base.base_trainer import BaseTrainer
+from src.data.load_imgs import HDF5DataModule
+from config.model import ModelConfig
+from pytorch_lightning.loggers import TensorBoardLogger
+
+def load_label_mapping():
+    with open('reports/label_mapping.json', 'r') as f:
+        label_to_idx = json.load(f)
+        return label_to_idx
 
 
-class TrainModel:
-    def __init__(self, state: StateManager, config: ModelConfig):
-        self.config = config
-        self.model_state = state.model_state
-        self.data_state = state.data_state
+class ModelTrainer:
+    def __init__(self, state: StateManager):
+        self.state = state
+        self.config = ModelConfig()
+        self.model = CNN(self.config)
+        self.data_module = HDF5DataModule(
+            config=self.config,
+            hdf5_filename='data/audio_data.hdf5',
+            subset=self.config.subset,
+            label_to_idx=load_label_mapping(),
+        )
+        self.trainer_model = BaseTrainer(
+            self.model, 
+            self.config, 
+        )
+        self.trainer = self.configure_trainer()
 
+    def configure_trainer(self):
+        logger = TensorBoardLogger("tb_logs", name="audio_classification")
+        checkpoint_callback = ModelCheckpoint(
+            monitor='val_loss',
+            dirpath='checkpoints/',
+            filename='best-checkpoint',
+            save_top_k=1,
+            mode='min'
+        )
+
+        early_stopping_callback = EarlyStopping(
+            monitor='val_loss',
+            patience=5,
+            mode='min'
+        )
+
+        trainer = pl.Trainer(
+            max_epochs=self.config.epochs,
+            callbacks=[checkpoint_callback, early_stopping_callback],
+            accelerator='cuda' if self.config.device == 'cuda' else 'cpu',
+            logger=logger,
+            enable_model_summary=True,
+            enable_progress_bar=True
+        )
+        return trainer
+
+    def train(self):
+        self.trainer.fit(self.trainer_model, datamodule=self.data_module)
+
+    def test(self):
+        self.trainer.test(self.trainer_model, datamodule=self.data_module)
+
+    def run(self):
+        self.train()
+        self.test()
+        
     def __call__(self):
-        model = self.model_state.get("model")
-        train_loader = self.data_state.get("train_dataloader")
-        val_loader = self.data_state.get("val_dataloader")  # Ensure you have a validation dataloader
-        device = self.config.device
-        criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=self.config.learning_rate)
-        num_epochs = self.config.epochs
+        self.run()
 
-        train_losses = []
-        val_losses = []
-        val_accuracies = []
-
-        for epoch in range(num_epochs):
-            model.train()
-            total_train_loss = 0
-            for data, target in train_loader:
-                data, target = data.to(device), target.to(device)
-                optimizer.zero_grad()
-                output = model(data)
-                loss = criterion(output, target)
-                loss.backward()
-                optimizer.step()
-                total_train_loss += loss.item()
-
-            avg_train_loss = total_train_loss / len(train_loader)
-            train_losses.append(avg_train_loss)
-            self.model_state.set('train_losses', train_losses)
-
-            # Perform validation after each epoch using BaseValidator
-            validator = BaseValidator(model, val_loader, device)
-            avg_val_loss, val_accuracy = validator.validate(criterion=criterion)
-
-            val_losses.append(avg_val_loss)
-            val_accuracies.append(val_accuracy)
-            self.model_state.set('val_losses', val_losses)
-            self.model_state.set('val_accuracies', val_accuracies)
-
-            print(
-                f"Epoch {epoch+1}/{num_epochs}, "
-                f"Train Loss: {avg_train_loss:.4f}, "
-                f"Val Loss: {avg_val_loss:.4f}, "
-                f"Val Accuracy: {val_accuracy:.2%}")
+if __name__ == '__main__':
+    trainer = ModelTrainer()
+    trainer.run()

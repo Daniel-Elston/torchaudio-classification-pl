@@ -13,11 +13,15 @@ def get_device():
 @attr.s
 class ModelConfig:
     device: str = attr.ib(factory=get_device)
+    subset: bool = attr.ib(default=True)
     epochs: int = attr.ib(default=5)
     batch_size: int = attr.ib(default=32)
+    train_size: float = attr.ib(default=0.5)
+    val_size: float = attr.ib(default=0.25)
+    test_size: float = attr.ib(default=0.25)
     model: str = attr.ib(default='cnn')
     optimizer: str = attr.ib(default='adam')
-    input_channels: int = attr.ib(default=3)
+    input_channels: int = attr.ib(default=1)
     hidden_channels1: int = attr.ib(default=32)
     hidden_channels2: int = attr.ib(default=64)
     learning_rate: float = attr.ib(default=0.001)
