@@ -7,6 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
+
+def load_label_mapping():
+    with open('reports/label_mapping.json', 'r') as f:
+        label_to_idx = json.load(f)
+        return label_to_idx
+
+
 def load_json(path):
     with open(path, "r") as file:
         return json.load(file)

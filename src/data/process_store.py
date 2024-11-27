@@ -17,16 +17,17 @@ class ProcessStoreData:
         self.exe = exe
         self.labels = config.labels
         self.load_path = state.paths.get_path('raw')
+        self.hdf5_path = state.paths.get_path('hdf5')
 
     def pipeline(self):
-        with h5py.File('data/audio_data.hdf5', 'w') as h5f:
+        with h5py.File(self.hdf5_path, 'w') as h5f:
             for label in self.labels:
                 if label == '_background_noise_':
                     pass
                 else:
                     logging.debug(f"Processing label: {label}")
                     self.process_and_save_label(label, h5f)
-        self.view_hdf5('data/audio_data.hdf5')
+        self.view_hdf5(self.hdf5_path)
 
 
     def process_and_save_label(self, label, h5f):

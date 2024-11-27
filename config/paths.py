@@ -7,6 +7,7 @@ from typing import Dict, Optional, Union
 
 paths_store = {
     "raw": Path("data/raw/SpeechCommands/speech_commands_v0.02"),
+    "hdf5": Path("data/audio_data.hdf5"),
     "processed": Path("data/processed"),
     "models": Path("models/cnn_model.pth"),
     "reports": Path("reports/figures"),

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-
 import pytorch_lightning as pl
 import torch
+import torch.nn.functional as F
 
 class BaseTrainer(pl.LightningModule):
     def __init__(self, model, config):
@@ -15,25 +15,24 @@ class BaseTrainer(pl.LightningModule):
         return self.model(x)
 
     def configure_criterion(self):
-        """Define the loss function."""
         return torch.nn.CrossEntropyLoss()
 
     def training_step(self, batch, batch_idx):
-        inputs, labels = self.process_batch(batch)
+        inputs = batch['spectrogram']
+        labels = batch['label']
         outputs = self(inputs)
         loss = self.criterion(outputs, labels)
-        self.log('train_loss', loss)
-        return loss
+        self.log('train_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        return {'loss': loss, 'logits': outputs}
 
     def validation_step(self, batch, batch_idx):
-        inputs, labels = self.process_batch(batch)
+        inputs = batch['spectrogram']
+        labels = batch['label']
         outputs = self(inputs)
         loss = self.criterion(outputs, labels)
-        preds = torch.argmax(outputs, dim=1)
-        acc = (preds == labels).float().mean()
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_accuracy', acc, prog_bar=True)
-
+        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        return {'loss': loss, 'logits': outputs}
+    
     def test_step(self, batch, batch_idx):
         inputs, labels = self.process_batch(batch)
         outputs = self(inputs)
@@ -51,4 +50,3 @@ class BaseTrainer(pl.LightningModule):
         inputs = batch['spectrogram']
         labels = batch['label']
         return inputs, labels
-

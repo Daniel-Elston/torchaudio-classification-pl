@@ -1,4 +1,6 @@
 tb_logs/
+checkpoints/
+checkpoints
 commit-msg.txt
 notebooks/*
 data/*

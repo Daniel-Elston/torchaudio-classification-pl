@@ -6,7 +6,7 @@ import numpy as np
 from config.state_init import StateManager
 
 
-class Visualiser:
+class VisualiseLoader:
     """Load dataset and perform base processing"""
     def __init__(self, state: StateManager):
         self.data_state = state.data_state
@@ -99,3 +99,86 @@ class Visualiser:
         
     def __call__(self):
         return self.pipeline()
+
+
+
+class VisualiseEvaluation:
+    def __init__(
+        self,
+        train_losses,
+        val_losses,
+        train_accuracies,
+        val_accuracies,
+        val_precisions,
+        val_recalls,
+        val_f1s,
+        confusion_matrix=None
+    ):
+        self.train_losses = train_losses
+        self.val_losses = val_losses
+        self.train_accuracies = train_accuracies
+        self.val_accuracies = val_accuracies
+        self.val_precisions = val_precisions
+        self.val_recalls = val_recalls
+        self.val_f1s = val_f1s
+        self.confusion_matrix = confusion_matrix
+
+    def pipeline(self):
+        self.plot_loss()
+        self.plot_accuracy()
+        self.plot_precision_recall_f1()
+        self.plot_confusion_matrix()
+        # If you have confusion matrix data, you can plot it here as well
+        # self.plot_confusion_matrix()
+
+    def plot_loss(self):
+        epochs = range(1, len(self.train_losses) + 1)
+        plt.figure(figsize=(10, 6))
+        plt.plot(epochs, self.train_losses, label='Train Loss')
+        plt.plot(epochs, self.val_losses, label='Validation Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Train and Validation Losses Over Epochs')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def plot_accuracy(self):
+        epochs = range(1, len(self.train_accuracies) + 1)
+        plt.figure(figsize=(10, 6))
+        plt.plot(epochs, self.train_accuracies, label='Train Accuracy')
+        plt.plot(epochs, self.val_accuracies, label='Validation Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Train and Validation Accuracies Over Epochs')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def plot_precision_recall_f1(self):
+        epochs = range(1, len(self.val_precisions) + 1)
+        plt.figure(figsize=(10, 6))
+        plt.plot(epochs, self.val_precisions, label='Validation Precision')
+        plt.plot(epochs, self.val_recalls, label='Validation Recall')
+        plt.plot(epochs, self.val_f1s, label='Validation F1 Score')
+        plt.xlabel('Epoch')
+        plt.ylabel('Score')
+        plt.title('Validation Precision, Recall, and F1 Score Over Epochs')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        
+    def plot_confusion_matrix(self):
+        if self.confusion_matrix is not None:
+            plt.figure(figsize=(10, 7))
+            sns.heatmap(self.confusion_matrix, annot=True, fmt='d', cmap='Blues')
+            plt.xlabel("Predicted Labels")
+            plt.ylabel("True Labels")
+            plt.title("Confusion Matrix")
+            plt.show()
+        else:
+            print("Confusion matrix not available.")
+    
+
+    def __call__(self):
+        self.pipeline()

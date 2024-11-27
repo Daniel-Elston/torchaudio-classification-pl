@@ -6,31 +6,27 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from src.models.cnn import CNN
 from src.base.base_trainer import BaseTrainer
-from src.data.load_imgs import HDF5DataModule
+from src.data.data_module import HDF5DataModule
 from config.model import ModelConfig
 from pytorch_lightning.loggers import TensorBoardLogger
-
-def load_label_mapping():
-    with open('reports/label_mapping.json', 'r') as f:
-        label_to_idx = json.load(f)
-        return label_to_idx
+from src.models.metrics import MetricLogger
+from src.plots.vis_eval import VisualiseEvaluation
 
 
 class ModelTrainer:
-    def __init__(self, state: StateManager):
+    def __init__(
+        self, state: StateManager,
+        config: ModelConfig,
+        data_module: HDF5DataModule,
+        model: CNN,
+        trainer_model: BaseTrainer
+    ):
         self.state = state
-        self.config = ModelConfig()
-        self.model = CNN(self.config)
-        self.data_module = HDF5DataModule(
-            config=self.config,
-            hdf5_filename='data/audio_data.hdf5',
-            subset=self.config.subset,
-            label_to_idx=load_label_mapping(),
-        )
-        self.trainer_model = BaseTrainer(
-            self.model, 
-            self.config, 
-        )
+        self.config = config
+        self.data_module = data_module
+        self.model = model
+        self.trainer_model = trainer_model
+        self.metric_logger = MetricLogger(num_classes=self.config.num_classes)
         self.trainer = self.configure_trainer()
 
     def configure_trainer(self):
@@ -51,27 +47,43 @@ class ModelTrainer:
 
         trainer = pl.Trainer(
             max_epochs=self.config.epochs,
-            callbacks=[checkpoint_callback, early_stopping_callback],
+            callbacks=[checkpoint_callback, early_stopping_callback, self.metric_logger],
             accelerator='cuda' if self.config.device == 'cuda' else 'cpu',
             logger=logger,
             enable_model_summary=True,
-            enable_progress_bar=True
+            enable_progress_bar=True,
+            enable_checkpointing=True
         )
         return trainer
 
     def train(self):
         self.trainer.fit(self.trainer_model, datamodule=self.data_module)
+    
+    def validate(self):
+        self.trainer.validate(self.trainer_model, datamodule=self.data_module)
 
     def test(self):
         self.trainer.test(self.trainer_model, datamodule=self.data_module)
+    
+    def visualize_evaluation(self):
+        visualizer = VisualiseEvaluation(
+            train_losses=self.metric_logger.train_loss_list,
+            val_losses=self.metric_logger.val_loss_list,
+            train_accuracies=self.metric_logger.train_acc_list,
+            val_accuracies=self.metric_logger.val_acc_list,
+            val_precisions=self.metric_logger.val_precision_list,
+            val_recalls=self.metric_logger.val_recall_list,
+            val_f1s=self.metric_logger.val_f1_list,
+            confusion_matrix=self.metric_logger.confusion_matrix
+        )
+        visualizer()
 
     def run(self):
         self.train()
+        # self.validate()
         self.test()
+        self.visualize_evaluation()
         
     def __call__(self):
         self.run()
 
-if __name__ == '__main__':
-    trainer = ModelTrainer()
-    trainer.run()
