@@ -9,9 +9,14 @@ import pandas as pd
 
 
 def load_label_mapping():
-    with open('reports/label_mapping.json', 'r') as f:
+    with open("reports/label_mapping.json", "r") as f:
         label_to_idx = json.load(f)
         return label_to_idx
+
+
+def reverse_mapping(label_to_idx):
+    idx_to_label = {idx: label for label, idx in label_to_idx.items()}
+    return idx_to_label
 
 
 def load_json(path):
