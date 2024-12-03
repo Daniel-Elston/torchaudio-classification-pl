@@ -20,7 +20,7 @@ class MainPipeline:
     def run(self):
         """ETL pipeline main entry point."""
         steps = [
-            # DataPipeline(self.state, self.exe),
+            DataPipeline(self.state, self.exe),
             ModelPipeline(self.state, self.exe),
         ]
         self.exe._execute_steps(steps, stage="main")

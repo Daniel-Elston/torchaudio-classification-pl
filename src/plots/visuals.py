@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import logging
+from pprint import pformat
 
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import torchaudio as ta
+from torch.utils.data import DataLoader
 
 from config.state_init import StateManager
 from src.models.metrics import MetricLogger
@@ -14,18 +16,23 @@ from src.models.metrics import MetricLogger
 class VisualiseLoader:
     """Visualise the data loader and transforms"""
 
-    def __init__(self, state: StateManager):
+    def __init__(self, state: StateManager, dataloader: DataLoader):
         self.data_state = state.data_state
         self.data_config = state.data_config
+        self.dataloader = dataloader
 
     def __call__(self):
+        self.vis_batch()
         self.vis_waveform()
         self.vis_spectogram()
         self.vis_melspectrogram()
         self.vis_mel_freq_cepstral_coeff()
 
+    def vis_batch(self):
+        batch = next(iter(self.dataloader))
+        logging.debug(pformat(batch))
+
     def vis_waveform(self):
-        self.dataloader = self.data_state.get("dataloader")
         batch = next(iter(self.dataloader))
 
         waveform = batch["waveform"]
@@ -53,13 +60,12 @@ class VisualiseLoader:
         ax2.set_ylabel("Amplitude")
 
         plt.tight_layout()
-        plt.show()
         if self.data_config.save_fig:
-            plt.savefig("reports/figures/waveform_e20.png", dpi=100)
+            plt.savefig("reports/figures/waveform.png")
+        plt.show()
         plt.close()
 
     def vis_spectogram(self):
-        self.dataloader = self.data_state.get("dataloader")
         batch = next(iter(self.dataloader))
 
         waveform = batch["waveform"][0]
@@ -69,13 +75,12 @@ class VisualiseLoader:
         plt.figure()
         plt.title(f"Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(spectrogram.log2().squeeze().numpy(), cmap="viridis")
-        plt.show()
         if self.data_config.save_fig:
-            plt.savefig("reports/figures/spectrogram_e20.png", dpi=100)
+            plt.savefig("reports/figures/spectrogram.png")
+        plt.show()
         plt.close()
 
     def vis_melspectrogram(self):
-        self.dataloader = self.data_state.get("dataloader")
         batch = next(iter(self.dataloader))
 
         waveform = batch["waveform"][0]
@@ -86,13 +91,12 @@ class VisualiseLoader:
         plt.figure()
         plt.title(f"Mel Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(mel_spectrogram.log2().squeeze().numpy(), cmap="viridis")
-        plt.show()
         if self.data_config.save_fig:
-            plt.savefig("reports/figures/mel_spectrogram_e20.png", dpi=100)
+            plt.savefig("reports/figures/mel_spectrogram.png")
+        plt.show()
         plt.close()
 
     def vis_mel_freq_cepstral_coeff(self):
-        self.dataloader = self.data_state.get("dataloader")
         batch = next(iter(self.dataloader))
 
         waveform = batch["waveform"][0]
@@ -103,9 +107,9 @@ class VisualiseLoader:
         plt.figure()
         plt.title(f"Mel Spectrogram, label: {batch['label'][0]}, sample rate: {sample_rate}")
         plt.imshow(mfcc_spectrogram.log2().squeeze().numpy(), cmap="viridis")
-        plt.show()
         if self.data_config.save_fig:
-            plt.savefig("reports/figures/mfcc_e20.png", dpi=100)
+            plt.savefig("reports/figures/mfcc.png")
+        plt.show()
         plt.close()
 
 
@@ -131,11 +135,11 @@ class VisualiseEvaluation:
         """Labels used in the dataset"""
         unique_labels = self.metric_logger.unique_labels
         if unique_labels:
-            logging.debug("Unique labels:", unique_labels)
-            logging.debug("idx_to_label:", self.idx_to_label)
+            logging.debug(f"Unique labels: {unique_labels}")
+            logging.debug(f"idx_to_label: {self.idx_to_label}")
         else:
             logging.debug("Unique labels not available.")
-            logging.debug("idx_to_label:", self.idx_to_label)
+            logging.debug(f"idx_to_label: {self.idx_to_label}")
 
     def plot_loss(self):
         train_losses = self.metric_logger.train_loss_list
@@ -151,7 +155,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/loss_e20.png", dpi=100)
+            plt.savefig("reports/eval/loss_e10.png", dpi=100)
         plt.show()
         plt.close()
 
@@ -169,7 +173,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/accuracy_e20.png", dpi=100)
+            plt.savefig("reports/eval/accuracy_e10.png", dpi=100)
         plt.show()
         plt.close()
 
@@ -188,7 +192,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/precision_recall_f1_e20.png", dpi=100)
+            plt.savefig("reports/eval/precision_recall_f1_e10.png", dpi=100)
         plt.show()
         plt.close()
 
@@ -215,7 +219,7 @@ class VisualiseEvaluation:
             plt.ylabel("True Labels")
             plt.title("Confusion Matrix")
             if self.data_config.save_fig:
-                plt.savefig("reports/eval/confusion_matrix_e20.png", dpi=100)
+                plt.savefig("reports/eval/confusion_matrix_e10.png", dpi=100)
             plt.show()
             plt.close()
         else:

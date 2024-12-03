@@ -24,7 +24,7 @@ class ProcessStoreData:
                 if label == "_background_noise_":
                     pass
                 else:
-                    logging.debug(f"Processing label: {label}")
+                    logging.debug(f"Processing files for label: {label}")
                     self.process_and_save_label(label, h5f)
         self.view_hdf5(self.hdf5_path)
 

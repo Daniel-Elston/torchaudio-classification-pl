@@ -14,6 +14,9 @@ class DataConfig:
     labels: list = attr.ib(factory=default_labels)
     train_size: float = attr.ib(default=0.5)
     subset: bool = attr.ib(default=True)
+    batch_size: int = attr.ib(default=32)
+    shuffle: bool = attr.ib(default=True)
+    num_workers: int = attr.ib(default=4)
 
 
 class DataState:

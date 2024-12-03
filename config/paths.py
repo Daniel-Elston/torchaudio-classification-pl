@@ -11,7 +11,6 @@ paths_store = {
     "processed": Path("data/processed"),
     "models": Path("models/cnn_model.pth"),
     "reports": Path("reports/figures"),
-    "results": Path("reports/results/eval_results.json"),
     "mappings": Path("reports/mappings.json"),
 }
 

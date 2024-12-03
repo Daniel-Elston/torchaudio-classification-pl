@@ -47,6 +47,7 @@ class HDF5AudioDataset(Dataset):
         with h5py.File(self.hdf5_filename, "r") as h5f:
             data = h5f[label_str][key]
             waveform = torch.from_numpy(data[()])
+            sample_rate = data.attrs["sample_rate"]
 
         spectrogram = self.spectrogram_transform(waveform)
 
@@ -71,4 +72,6 @@ class HDF5AudioDataset(Dataset):
         return {
             "label": label,
             "spectrogram": spectrogram,
+            "waveform": waveform,
+            "sample_rate": sample_rate,
         }
