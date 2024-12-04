@@ -121,6 +121,7 @@ class VisualiseEvaluation:
         idx_to_label=None,
     ):
         self.data_config = state.data_config
+        self.model_config = state.model_config
         self.metric_logger = metric_logger
         self.idx_to_label = idx_to_label
 
@@ -155,7 +156,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/loss_e10.png", dpi=100)
+            plt.savefig(f"reports/eval/loss_e{self.model_config.epochs}.png")
         plt.show()
         plt.close()
 
@@ -173,7 +174,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/accuracy_e10.png", dpi=100)
+            plt.savefig(f"reports/eval/accuracy_e{self.model_config.epochs}.png")
         plt.show()
         plt.close()
 
@@ -192,7 +193,7 @@ class VisualiseEvaluation:
         plt.legend()
         plt.grid(True)
         if self.data_config.save_fig:
-            plt.savefig("reports/eval/precision_recall_f1_e10.png", dpi=100)
+            plt.savefig(f"reports/eval/precision_recall_f1_e{self.model_config.epochs}.png")
         plt.show()
         plt.close()
 
@@ -219,7 +220,7 @@ class VisualiseEvaluation:
             plt.ylabel("True Labels")
             plt.title("Confusion Matrix")
             if self.data_config.save_fig:
-                plt.savefig("reports/eval/confusion_matrix_e10.png", dpi=100)
+                plt.savefig(f"reports/eval/confusion_matrix_e{self.model_config.epochs}.png")
             plt.show()
             plt.close()
         else:

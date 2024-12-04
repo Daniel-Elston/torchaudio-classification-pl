@@ -10,7 +10,7 @@ def default_labels():
 @attr.s
 class DataConfig:
     overwrite: bool = attr.ib(default=True)
-    save_fig: bool = attr.ib(default=False)
+    save_fig: bool = attr.ib(default=True)
     labels: list = attr.ib(factory=default_labels)
     train_size: float = attr.ib(default=0.5)
     subset: bool = attr.ib(default=True)

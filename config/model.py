@@ -15,7 +15,7 @@ def get_device():
 class ModelConfig:
     device: str = attr.ib(factory=get_device)
     subset: bool = attr.ib(default=False)
-    epochs: int = attr.ib(default=2)
+    epochs: int = attr.ib(default=15)
     batch_size: int = attr.ib(default=32)
     train_size: float = attr.ib(default=0.7)
     val_size: float = attr.ib(default=0.15)

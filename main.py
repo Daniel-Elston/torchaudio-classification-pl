@@ -10,17 +10,19 @@ from utils.project_setup import init_project
 
 
 class MainPipeline:
-    def __init__(self, state: StateManager, exe: TaskExecutor):
+    def __init__(
+        self, state: StateManager,
+        exe: TaskExecutor
+    ):
         self.state = state
         self.exe = exe
-
         self.load_path = state.paths.get_path('raw')
         self.save_path = state.paths.get_path('processed')
 
     def run(self):
         """ETL pipeline main entry point."""
         steps = [
-            # DataPipeline(self.state, self.exe),
+            DataPipeline(self.state, self.exe),
             ModelPipeline(self.state, self.exe),
         ]
         self.exe._execute_steps(steps, stage="main")

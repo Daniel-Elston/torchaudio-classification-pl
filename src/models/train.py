@@ -31,6 +31,11 @@ class ModelTrainer:
         self.metric_logger = metric_logger
         self.trainer = self.configure_trainer()
 
+    def __call__(self):
+        self.train()
+        self.validate()
+        self.test()
+
     def configure_trainer(self):
         logger = TensorBoardLogger("tb_logs", name="audio_classification")
         checkpoint_callback = ModelCheckpoint(
@@ -62,11 +67,3 @@ class ModelTrainer:
 
     def test(self):
         self.trainer.test(self.trainer_model, datamodule=self.data_module)
-
-    def run(self):
-        self.train()
-        self.validate()
-        self.test()
-
-    def __call__(self):
-        self.run()
