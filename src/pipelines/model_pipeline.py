@@ -41,10 +41,10 @@ class ModelPipeline:
         )
         self.metric_logger = MetricLogger(self.config.num_classes, self.idx_to_label)
 
-    def __call__(self):
-        self.run()
+    # def __call__(self):
+    #     self.run()
 
-    def run(self):
+    def __call__(self):
         steps = [
             CreateLabelMapping(self.state, self.config),
             ModelTrainer(

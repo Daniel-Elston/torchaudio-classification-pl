@@ -33,7 +33,7 @@ class DataPipeline:
             num_workers=self.config.num_workers,
         )
 
-    def run(self):
+    def __call__(self):
         steps = [
             DownloadDataset(self.state),
             ProcessStoreData(self.state, self.config),
@@ -41,5 +41,5 @@ class DataPipeline:
         ]
         self.exe._execute_steps(steps, stage="parent")
 
-    def __call__(self):
-        self.run()
+    # def __call__(self):
+    #     self.run()
